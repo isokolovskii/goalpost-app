@@ -58,7 +58,7 @@ extension GoalsVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "goalCell", for: indexPath) as? GoalCell else { return UITableViewCell() }
-        cell.configureCell(goalDescription: goals[indexPath.row].goalDescription!, goalType: GoalType(rawValue: goals[indexPath.row].goalType!)!, goalProgressAmount: Int(goals[indexPath.row].goalCompletionValue - goals[indexPath.row].goalProgress))
+        cell.configureCell(goal: goals[indexPath.row])
         return cell
     }
     
@@ -79,7 +79,19 @@ extension GoalsVC: UITableViewDelegate, UITableViewDataSource {
             tableView.endUpdates()
         }
         deleteAction.backgroundColor = #colorLiteral(red: 1, green: 0.1491314173, blue: 0, alpha: 1)
-        return [deleteAction]
+        
+        if goals[indexPath.row].goalProgress < goals[indexPath.row].goalCompletionValue {
+            let addProgressAction = UITableViewRowAction(style: .normal, title: "ADD 1") { (_, indexPath) in
+                tableView.beginUpdates()
+                self.setProgress(atIndexPath: indexPath)
+                tableView.reloadRows(at: [indexPath], with: .automatic)
+                tableView.endUpdates()
+            }
+            addProgressAction.backgroundColor = #colorLiteral(red: 0.9385011792, green: 0.7164435983, blue: 0.3331357837, alpha: 1)
+            return [deleteAction, addProgressAction]
+        } else {
+            return [deleteAction]
+        }
     }
 }
 
@@ -93,6 +105,20 @@ extension GoalsVC {
         } catch {
             debugPrint("Could not fetch \(error.localizedDescription)")
             completion(false)
+        }
+    }
+    
+    func setProgress(atIndexPath index: IndexPath) {
+        guard let managedContext = appDelegate?.persistentContainer.viewContext else { return }
+        
+        let chosenGoal = goals[index.row]
+        guard chosenGoal.goalProgress < chosenGoal.goalCompletionValue else { return }
+        chosenGoal.goalProgress += 1
+        
+        do {
+            try managedContext.save()
+        } catch {
+            debugPrint("Could not set progress \(error.localizedDescription)")
         }
     }
     
