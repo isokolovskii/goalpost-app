@@ -35,7 +35,7 @@ class CreateGoalVC: UIViewController, UITextViewDelegate {
         guard let goalDescription = goalTxt.text, goalTxt.text != "What is your goal?", goalTxt.text != "" else { return }
         guard let finishGoalVC = storyboard?.instantiateViewController(withIdentifier: "finishGoalVC") as? FinishGoalVC else { return }
         finishGoalVC.initData(goalDescription: goalDescription, goalType: goalType)
-        presentDetail(finishGoalVC)
+        presentingViewController?.presentSecondaryDetail(finishGoalVC)
     }
     
     @IBAction func shortTermBtnPressed(_ sender: Any) {
@@ -64,7 +64,7 @@ class CreateGoalVC: UIViewController, UITextViewDelegate {
     func textViewDidEndEditing(_ textView: UITextView) {
         if goalTxt.text == "" {
             goalTxt.text = "What is your goal?"
-            goalTxt.textColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+            goalTxt.textColor = #colorLiteral(red: 0.6000000238, green: 0.6000000238, blue: 0.6000000238, alpha: 1)
         }
     }
 }

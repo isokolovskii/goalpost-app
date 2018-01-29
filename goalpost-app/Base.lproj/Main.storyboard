@@ -368,8 +368,8 @@
                                         </subviews>
                                     </stackView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hSj-H9-USN">
-                                        <rect key="frame" x="15" y="30" width="14" height="25"/>
-                                        <state key="normal" image="back"/>
+                                        <rect key="frame" x="15" y="31.5" width="22" height="22"/>
+                                        <state key="normal" image="close"/>
                                         <connections>
                                             <action selector="backBtnPressed:" destination="ubi-Yh-hdl" eventType="touchUpInside" id="haG-97-paT"/>
                                         </connections>
@@ -457,5 +457,6 @@
     <resources>
         <image name="addGoal" width="35" height="32"/>
         <image name="back" width="14" height="25"/>
+        <image name="close" width="22" height="20"/>
     </resources>
 </document>
