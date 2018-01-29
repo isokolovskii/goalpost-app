@@ -15,11 +15,26 @@ class GoalsVC: UIViewController {
     // Outlets
     @IBOutlet weak var tableView: UITableView!
     
+    private var goals: [Goal] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.isHidden = false
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        fetch { (success) in
+            if success {
+                if goals.count > 0 {
+                    tableView.isHidden = false
+                } else {
+                    tableView.isHidden = true
+                }
+            }
+        }
+        tableView.reloadData()
     }
     
     @IBAction func addGoalPressed(_ sender: Any) {
@@ -34,12 +49,34 @@ extension GoalsVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 3
+        return goals.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "goalCell", for: indexPath) as? GoalCell else { return UITableViewCell() }
-        cell.configureCell(goalDescription: "Do something", goalType: .shortTerm, goalProgressAmount: 2)
+        cell.configureCell(goalDescription: goals[indexPath.row].goalDescription!, goalType: GoalType(rawValue: goals[indexPath.row].goalType!)!, goalProgressAmount: Int(goals[indexPath.row].goalCompletionValue - goals[indexPath.row].goalProgress))
         return cell
     }
 }
+
+extension GoalsVC {
+    func fetch(completion: (Bool) -> ()) {
+        guard let managedContext = appDelegate?.persistentContainer.viewContext else { return }
+        let fetchRequest = NSFetchRequest<Goal>(entityName: "Goal")
+        do {
+            goals = try managedContext.fetch(fetchRequest)
+            completion(true)
+        } catch {
+            debugPrint("Could not fetch \(error.localizedDescription)")
+            completion(false)
+        }
+    }
+}
+
+
+
+
+
+
+
+
