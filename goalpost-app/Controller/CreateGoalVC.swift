@@ -8,7 +8,7 @@
 
 import UIKit
 
-class CreateGoalVC: UIViewController {
+class CreateGoalVC: UIViewController, UITextViewDelegate {
     // Outlets
     @IBOutlet weak var goalTxt: UITextView!
     @IBOutlet weak var nextBtn: UIButton!
@@ -22,9 +22,20 @@ class CreateGoalVC: UIViewController {
         nextBtn.bindToKeyboard()
         shortTermBtn.setSelectedColor()
         longTermBtn.setDeselectedColor()
+        goalTxt.delegate = self
+        addTap()
+    }
+    
+    func addTap() {
+        let tap = UITapGestureRecognizer(target: goalTxt, action: #selector(resignFirstResponder))
+        view.addGestureRecognizer(tap)
     }
     
     @IBAction func nextBtnPressed(_ sender: Any) {
+        guard let goalDescription = goalTxt.text, goalTxt.text != "What is your goal?", goalTxt.text != "" else { return }
+        guard let finishGoalVC = storyboard?.instantiateViewController(withIdentifier: "finishGoalVC") as? FinishGoalVC else { return }
+        finishGoalVC.initData(goalDescription: goalDescription, goalType: goalType)
+        presentDetail(finishGoalVC)
     }
     
     @IBAction func shortTermBtnPressed(_ sender: Any) {
@@ -41,5 +52,19 @@ class CreateGoalVC: UIViewController {
     
     @IBAction func backBtnPressed(_ sender: Any) {
         dismissDetail()
+    }
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if goalTxt.text == "What is your goal?" {
+            goalTxt.text = ""
+            goalTxt.textColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if goalTxt.text == "" {
+            goalTxt.text = "What is your goal?"
+            goalTxt.textColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+        }
     }
 }
