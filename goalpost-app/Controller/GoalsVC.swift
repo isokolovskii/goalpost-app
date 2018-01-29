@@ -25,6 +25,10 @@ class GoalsVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        fetchCoreDataObjects()
+    }
+    
+    func fetchCoreDataObjects() {
         fetch { (success) in
             if success {
                 if goals.count > 0 {
@@ -57,6 +61,26 @@ extension GoalsVC: UITableViewDelegate, UITableViewDataSource {
         cell.configureCell(goalDescription: goals[indexPath.row].goalDescription!, goalType: GoalType(rawValue: goals[indexPath.row].goalType!)!, goalProgressAmount: Int(goals[indexPath.row].goalCompletionValue - goals[indexPath.row].goalProgress))
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
+        return .none
+    }
+    
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        let deleteAction = UITableViewRowAction(style: .destructive, title: "DELETE") { (_, indexPath) in
+            tableView.beginUpdates()
+            self.removeGoal(atIndexPath: indexPath)
+            self.fetchCoreDataObjects()
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+            tableView.endUpdates()
+        }
+        deleteAction.backgroundColor = #colorLiteral(red: 1, green: 0.1491314173, blue: 0, alpha: 1)
+        return [deleteAction]
+    }
 }
 
 extension GoalsVC {
@@ -71,12 +95,15 @@ extension GoalsVC {
             completion(false)
         }
     }
+    
+    func removeGoal(atIndexPath index: IndexPath) {
+        guard let managedContext = appDelegate?.persistentContainer.viewContext else { return }
+        managedContext.delete(goals[index.row])
+        
+        do {
+            try managedContext.save()
+        } catch {
+            debugPrint("Could not remove \(error.localizedDescription)")
+        }
+    }
 }
-
-
-
-
-
-
-
-
